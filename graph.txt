@@ -1,0 +1,28 @@
+reset
+
+set term png size 1000,600
+set output "graph.png"
+
+set grid
+set datafile separator "|"
+set xrange [0:60]
+set bmargin 6
+
+set title "Movimento do pêndulo no tempo"
+set xlabel "tempo (s)"
+set ylabel "posição (unidades de comprimento)"
+set key above right
+set samples 80000
+
+pos(x)=mid+A*exp(-sqrt_b*sqrt_b*x)*cos(omega*x-phi)
+A=1000;omega=1;phi=1;sqrt_b=1;mid=1000
+
+fit pos(x) 'dados.txt' using ($2):($1) via A,omega,phi,sqrt_b,mid
+
+b = sqrt_b * sqrt_b
+
+fator = sqrt(omega * omega + b * b) / (2 * b)
+
+set label 1 sprintf("Fator de Qualidade = %.4f", fator) at graph 0.35,-0.2
+
+plot 'dados.txt' using ($2):($1) title "medições" lt rgb "orange", pos(x) title "função ajustada" lt rgb "blue"
